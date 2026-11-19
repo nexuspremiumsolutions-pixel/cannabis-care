@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { PWAInstallButton } from '../Common/PWAControls';
 import { BotanicalLeafIcon, BotanicalFlowerIcon } from '../Common/BotanicalDecor';
+import { isDemoModeEnabled } from '../../lib/demoMode';
 import {
   Shield,
   LayoutDashboard,
@@ -46,7 +47,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenNotifications,
   onOpenAuth,
 }) => {
-  const { user, profile, logout, switchRole, switchDemoPersona } = useAuth();
+  const { user, profile, isAuthenticated, logout, switchRole, switchDemoPersona } = useAuth();
+  const demoMode = isDemoModeEnabled();
   const { totalItemsCount, openCartDrawer } = useCart();
   const { language, setLanguage, t, options, currentOption, isRTL } = useLanguage();
 
@@ -359,7 +361,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Profile Dropdown Menu */}
+            {/* Profile Dropdown Menu or Public Sign-in CTA */}
+            {!isAuthenticated ? (
+              <button
+                onClick={() => onOpenAuth && onOpenAuth()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+              >
+                <span>Connexion</span>
+              </button>
+            ) : (
             <div className="relative" ref={profileMenuRef}>
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -421,55 +431,57 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </button>
                   </div>
 
-                  {/* Switch role in dev/demo */}
-                  <div className="px-4 py-2 border-t border-slate-800 bg-black/40">
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1.5 flex items-center justify-between">
-                      <span>Démonstration Directe :</span>
-                      <span className="text-[9px] bg-emerald-950 px-1 py-0.5 rounded text-emerald-300">1-clic</span>
-                    </span>
-                    <div className="grid grid-cols-2 gap-1.5 text-[10px]">
-                      <button
-                        onClick={() => {
-                          setIsProfileDropdownOpen(false);
-                          switchDemoPersona('shop');
-                          setActiveTab('partner_dashboard');
-                        }}
-                        className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-200"
-                      >
-                        🏪 Boutique Pro
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileDropdownOpen(false);
-                          switchDemoPersona('admin');
-                          setActiveTab('admin');
-                        }}
-                        className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-200"
-                      >
-                        ⚡ Super Admin
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileDropdownOpen(false);
-                          switchDemoPersona('cbd');
-                          setActiveTab('dashboard');
-                        }}
-                        className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-200"
-                      >
-                        🌸 Client CBD
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileDropdownOpen(false);
-                          switchDemoPersona('thc');
-                          setActiveTab('dashboard');
-                        }}
-                        className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-200"
-                      >
-                        🌿 Client THC
-                      </button>
+                  {/* Switch role in dev/demo only (?demo=1) */}
+                  {demoMode && (
+                    <div className="px-4 py-2 border-t border-slate-800 bg-black/40">
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1.5 flex items-center justify-between">
+                        <span>Démonstration Directe :</span>
+                        <span className="text-[9px] bg-emerald-950 px-1 py-0.5 rounded text-emerald-300">1-clic</span>
+                      </span>
+                      <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            switchDemoPersona('shop');
+                            setActiveTab('partner_dashboard');
+                          }}
+                          className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-200"
+                        >
+                          🏪 Boutique Pro
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            switchDemoPersona('admin');
+                            setActiveTab('admin');
+                          }}
+                          className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-200"
+                        >
+                          ⚡ Super Admin
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            switchDemoPersona('cbd');
+                            setActiveTab('dashboard');
+                          }}
+                          className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-200"
+                        >
+                          🌸 Client CBD
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            switchDemoPersona('thc');
+                            setActiveTab('dashboard');
+                          }}
+                          className="p-1.5 rounded-lg text-left font-bold cursor-pointer bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-200"
+                        >
+                          🌿 Client THC
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {onOpenAuth && (
                     <div className="px-4 py-1.5 border-t border-slate-800">
@@ -500,6 +512,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               )}
             </div>
+            )}
 
             {/* Mobile Menu Toggle Button */}
             <button

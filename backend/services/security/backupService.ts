@@ -1,11 +1,18 @@
 import crypto from 'crypto';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { db } from '../../db/database';
 import { BackupSnapshot } from '../../../src/types/entities';
 
+const IS_SERVERLESS = Boolean(
+  process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL
+);
+
 export class BackupService {
-  private static backupsDir = path.join(process.cwd(), '.backups');
+  private static backupsDir = IS_SERVERLESS
+    ? path.join(os.tmpdir(), 'cannabis-care-backups')
+    : path.join(process.cwd(), '.backups');
 
   private static ensureDirExists() {
     if (!fs.existsSync(this.backupsDir)) {

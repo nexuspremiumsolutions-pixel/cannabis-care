@@ -31,12 +31,16 @@ import { BotanicalHeroBanner } from './components/Common/BotanicalHeroBanner';
 import { DemoFloatingBar } from './components/Common/DemoFloatingBar';
 import { PartnerDashboardView } from './components/PartnerStorefront/PartnerDashboardView';
 import { PartnerStorefrontView } from './components/PartnerStorefront/PartnerStorefrontView';
-import { ProfileType } from './types/entities';
+import { ProfileType, UserRole } from './types/entities';
+import { isDemoModeEnabled } from './lib/demoMode';
+
+const PUBLIC_TABS = new Set(['stores', 'education', 'subscription', 'marketing', 'loyalty']);
 
 const MainApp: React.FC = () => {
-  const { isAuthenticated, isLoading, profile, token, refreshMe, switchDemoPersona } = useAuth();
+  const { isAuthenticated, isLoading, user, profile, token, refreshMe, switchDemoPersona } = useAuth();
+  const demoMode = isDemoModeEnabled();
 
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('stores');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
@@ -45,13 +49,36 @@ const MainApp: React.FC = () => {
   const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
   const [previewShopId, setPreviewShopId] = useState<string | null>(null);
 
-  // Auto-init to default demo persona if not authenticated yet so user/shops have immediate free access
+  // En mode démo explicite (?demo=1), auto-connexion de présentation ; en public, ouverture accueil/connexion
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Initialize with shop or THC profile for immediate presentation
-      switchDemoPersona('shop');
+      if (demoMode) {
+        switchDemoPersona('shop');
+      } else {
+        setIsAuthModalOpen(true);
+      }
     }
-  }, [isLoading, isAuthenticated, switchDemoPersona]);
+  }, [isLoading, isAuthenticated, demoMode, switchDemoPersona]);
+
+  // Une fois authentifié, orienter sur l'espace approprié si l'utilisateur était sur la vue d'accueil par défaut
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      if (
+        (user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN || user.role === UserRole.PLATFORM_ADMIN) &&
+        activeTab === 'stores'
+      ) {
+        setActiveTab('admin');
+      } else if (
+        (user.role === UserRole.SHOP_OWNER || user.role === UserRole.STORE_ADMIN) &&
+        activeTab === 'stores'
+      ) {
+        setActiveTab('partner_dashboard');
+      } else if (user.role === UserRole.USER && activeTab === 'stores') {
+        setActiveTab('dashboard');
+      }
+      setIsAuthModalOpen(false);
+    }
+  }, [isAuthenticated, user?.id]);
 
   if (isLoading) {
     return (
@@ -72,7 +99,8 @@ const MainApp: React.FC = () => {
   }
 
   // Need Onboarding?
-  const needsOnboarding = (profile && !profile?.isOnboarded) || isOnboardingManualOpen;
+  const needsOnboarding = (isAuthenticated && profile && !profile?.isOnboarded) || isOnboardingManualOpen;
+  const requiresAuthForTab = !isAuthenticated && !PUBLIC_TABS.has(activeTab);
 
   return (
     <div className="min-h-screen bg-[#fbfdfa] text-slate-900 flex flex-col justify-between font-sans selection:bg-emerald-200 selection:text-emerald-950 pb-16 lg:pb-0">
@@ -106,6 +134,34 @@ const MainApp: React.FC = () => {
               shopIdOrSlug={previewShopId}
               onBack={() => setPreviewShopId(null)}
             />
+          ) : requiresAuthForTab ? (
+            <div className="max-w-xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-lg p-8 text-center space-y-4 my-6">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#042416] border border-amber-400/50 overflow-hidden shadow-md">
+                <img
+                  src="/assets/aistudio/logo_officiel_cannabis_care_sombre_5d1e8e7a.jpg"
+                  alt="Logo officiel CANNABIS CARE"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Votre espace personnel CANNABIS CARE</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Connectez-vous ou créez un compte gratuit et confidentiel pour accéder à votre tableau de bord, votre journal bien-être, vos objectifs et vos commandes.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm transition cursor-pointer shadow-sm"
+                >
+                  Se connecter / Créer un compte
+                </button>
+                <button
+                  onClick={() => setActiveTab('stores')}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition cursor-pointer"
+                >
+                  Explorer les Boutiques CBD
+                </button>
+              </div>
+            </div>
           ) : (
             <>
               {activeTab === 'dashboard' && (
@@ -146,14 +202,16 @@ const MainApp: React.FC = () => {
         </main>
       </div>
 
-      {/* Floating Demo Persona Switcher Bar for Live Partner Demos */}
-      <DemoFloatingBar
-        onSelectTab={(tab) => {
-          setPreviewShopId(null);
-          setActiveTab(tab);
-        }}
-        activeTab={activeTab}
-      />
+      {/* Floating Demo Persona Switcher Bar — visible uniquement si ?demo=1 */}
+      {demoMode && (
+        <DemoFloatingBar
+          onSelectTab={(tab) => {
+            setPreviewShopId(null);
+            setActiveTab(tab);
+          }}
+          activeTab={activeTab}
+        />
+      )}
 
       {/* Footer */}
       <Footer onOpenSettings={() => setIsSettingsOpen(true)} />

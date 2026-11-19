@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import {
   User,
@@ -433,7 +434,12 @@ export interface DatabaseSchema {
   metricDefinitions: MetricDefinition[];
 }
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+const IS_SERVERLESS = Boolean(
+  process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL
+);
+const DATA_DIR = IS_SERVERLESS
+  ? path.join(os.tmpdir(), 'cannabis-care-data')
+  : path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'cannabis_care_db.json');
 
 class DatabaseEngine {
@@ -443,25 +449,26 @@ class DatabaseEngine {
   private lastSyncedSnapshots: Map<string, string> = new Map();
   private pendingSyncKeys: Set<string> = new Set();
   private syncTimer: ReturnType<typeof setTimeout> | null = null;
+  private activeSyncPromise: Promise<void> | null = null;
 
   constructor() {
     this.data = this.initializeOrLoad();
   }
 
   private initializeOrLoad(): DatabaseSchema {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
 
-    if (fs.existsSync(DB_FILE)) {
-      try {
+      if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw) as DatabaseSchema;
         // Ensure all arrays exist
         return this.ensureSchemaIntegrity(parsed);
-      } catch (err) {
-        console.error('Error loading DB file, fallback to fresh seed:', err);
       }
+    } catch (err) {
+      console.error('Error loading DB file, fallback to fresh seed:', err);
     }
 
     const fresh = this.getInitialSeed();
@@ -1128,8 +1135,22 @@ class DatabaseEngine {
     }
 
     this.syncTimer = setTimeout(() => {
-      void this.flushSyncToSupabase();
-    }, 150);
+      this.activeSyncPromise = this.flushSyncToSupabase();
+    }, IS_SERVERLESS ? 0 : 150);
+  }
+
+  public async flushPendingSync(): Promise<void> {
+    if (!this.supabaseSyncEnabled) return;
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+      this.syncTimer = null;
+    }
+    if (this.pendingSyncKeys.size > 0) {
+      this.activeSyncPromise = this.flushSyncToSupabase();
+    }
+    if (this.activeSyncPromise) {
+      await this.activeSyncPromise;
+    }
   }
 
   private async flushSyncToSupabase() {
@@ -1161,6 +1182,8 @@ class DatabaseEngine {
       }
     } catch (err: any) {
       console.error('[Supabase Sync] Write exception:', err?.message);
+    } finally {
+      this.activeSyncPromise = null;
     }
   }
 

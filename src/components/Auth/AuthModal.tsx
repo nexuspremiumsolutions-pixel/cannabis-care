@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { Shield, Sparkles, Check, Lock, Mail, User as UserIcon, AlertCircle } from 'lucide-react';
+import { isDemoModeEnabled } from '../../lib/demoMode';
 
 export const AuthModal: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   const { login, loginWithSocial, switchDemoPersona, register } = useAuth();
+  const demoMode = isDemoModeEnabled();
   const [isLogin, setIsLogin] = useState<boolean>(true);
 
   const [email, setEmail] = useState('');
@@ -153,70 +155,72 @@ export const AuthModal: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             Plateforme sanitaire & bienveillante d&apos;accompagnement et de réduction des risques
           </p>
 
-          {/* Quick Instant Free Access Buttons */}
-          <div className="mt-4 pt-3 border-t border-slate-800/80">
-            <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-2">
-              ⚡ Démonstration Directe Sans Mot de Passe :
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-left">
-              <button
-                type="button"
-                onClick={() => {
-                  switchDemoPersona('shop');
-                  if (onClose) onClose();
-                }}
-                className="p-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <span className="text-base">🏪</span>
-                <div>
-                  <div className="text-amber-300 leading-tight">Espace Boutique</div>
-                  <div className="text-[9px] text-amber-200/70 font-normal">Pour vos commerçants</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchDemoPersona('admin');
-                  if (onClose) onClose();
-                }}
-                className="p-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/40 text-purple-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <span className="text-base">⚡</span>
-                <div>
-                  <div className="text-purple-300 leading-tight">Super Admin</div>
-                  <div className="text-[9px] text-purple-200/70 font-normal">Supervision globale</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchDemoPersona('cbd');
-                  if (onClose) onClose();
-                }}
-                className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <span className="text-base">🌸</span>
-                <div>
-                  <div className="text-emerald-300 leading-tight">Client CBD</div>
-                  <div className="text-[9px] text-emerald-200/70 font-normal">Catalogue & Bien-être</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchDemoPersona('thc');
-                  if (onClose) onClose();
-                }}
-                className="p-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/40 text-teal-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <span className="text-base">🌿</span>
-                <div>
-                  <div className="text-teal-300 leading-tight">Client THC</div>
-                  <div className="text-[9px] text-teal-200/70 font-normal">Suivi RDR & Journal</div>
-                </div>
-              </button>
+          {/* Quick Instant Free Access Buttons (Demo opt-in ?demo=1 only) */}
+          {demoMode && (
+            <div className="mt-4 pt-3 border-t border-slate-800/80">
+              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-2">
+                ⚡ Démonstration Directe Sans Mot de Passe :
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-left">
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchDemoPersona('shop');
+                    if (onClose) onClose();
+                  }}
+                  className="p-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span className="text-base">🏪</span>
+                  <div>
+                    <div className="text-amber-300 leading-tight">Espace Boutique</div>
+                    <div className="text-[9px] text-amber-200/70 font-normal">Pour vos commerçants</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchDemoPersona('admin');
+                    if (onClose) onClose();
+                  }}
+                  className="p-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/40 text-purple-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span className="text-base">⚡</span>
+                  <div>
+                    <div className="text-purple-300 leading-tight">Super Admin</div>
+                    <div className="text-[9px] text-purple-200/70 font-normal">Supervision globale</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchDemoPersona('cbd');
+                    if (onClose) onClose();
+                  }}
+                  className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span className="text-base">🌸</span>
+                  <div>
+                    <div className="text-emerald-300 leading-tight">Client CBD</div>
+                    <div className="text-[9px] text-emerald-200/70 font-normal">Catalogue & Bien-être</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchDemoPersona('thc');
+                    if (onClose) onClose();
+                  }}
+                  className="p-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/40 text-teal-200 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <span className="text-base">🌿</span>
+                  <div>
+                    <div className="text-teal-300 leading-tight">Client THC</div>
+                    <div className="text-[9px] text-teal-200/70 font-normal">Suivi RDR & Journal</div>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Tab switch */}
@@ -397,53 +401,55 @@ export const AuthModal: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             {isLoading ? 'Traitement en cours...' : isLogin ? 'Se connecter à mon espace' : 'Créer mon compte sécurisé'}
           </button>
 
-          {/* Demo test account helper */}
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block text-center mb-2">
-              Comptes Démo (Connexion 1-clic) :
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => fillQuickAccount('demo.thc@cannabiscare.fr', 'DemoCare2026!')}
-                className="p-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-900 text-left border border-teal-200 transition font-medium cursor-pointer shadow-2xs"
-              >
-                <div className="font-bold flex items-center gap-1">🌿 Parcours THC</div>
-                <div className="text-[10px] text-teal-700">Julien (Sevrage/Réduction)</div>
-              </button>
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => fillQuickAccount('demo.cbd@cannabiscare.fr', 'DemoCare2026!')}
-                className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-left border border-emerald-200 transition font-medium cursor-pointer shadow-2xs"
-              >
-                <div className="font-bold flex items-center gap-1">🌸 Parcours CBD</div>
-                <div className="text-[10px] text-emerald-700">Claire (Bien-être/Sommeil)</div>
-              </button>
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => fillQuickAccount('admin@nexus.fr', 'AdminCare2026!')}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-left border border-slate-300 transition font-medium cursor-pointer shadow-2xs"
-              >
-                <div className="font-bold flex items-center gap-1">⚡ Super Admin</div>
-                <div className="text-[10px] text-slate-600">Back-office & Supervision</div>
-              </button>
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => fillQuickAccount('shop@nexus.fr', 'ShopCare2026!')}
-                className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-left border border-amber-200 transition font-medium cursor-pointer shadow-2xs"
-              >
-                <div className="font-bold flex items-center gap-1">🏪 Commerçant</div>
-                <div className="text-[10px] text-amber-700">Boutique Nexus Paris</div>
-              </button>
+          {/* Demo test account helper (Demo opt-in ?demo=1 only) */}
+          {demoMode && (
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block text-center mb-2">
+                Comptes Démo (Connexion 1-clic) :
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => fillQuickAccount('demo.thc@cannabiscare.fr', 'DemoCare2026!')}
+                  className="p-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-900 text-left border border-teal-200 transition font-medium cursor-pointer shadow-2xs"
+                >
+                  <div className="font-bold flex items-center gap-1">🌿 Parcours THC</div>
+                  <div className="text-[10px] text-teal-700">Julien (Sevrage/Réduction)</div>
+                </button>
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => fillQuickAccount('demo.cbd@cannabiscare.fr', 'DemoCare2026!')}
+                  className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-left border border-emerald-200 transition font-medium cursor-pointer shadow-2xs"
+                >
+                  <div className="font-bold flex items-center gap-1">🌸 Parcours CBD</div>
+                  <div className="text-[10px] text-emerald-700">Claire (Bien-être/Sommeil)</div>
+                </button>
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => fillQuickAccount('admin@nexus.fr', 'AdminCare2026!')}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-left border border-slate-300 transition font-medium cursor-pointer shadow-2xs"
+                >
+                  <div className="font-bold flex items-center gap-1">⚡ Super Admin</div>
+                  <div className="text-[10px] text-slate-600">Back-office & Supervision</div>
+                </button>
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => fillQuickAccount('shop@nexus.fr', 'ShopCare2026!')}
+                  className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-left border border-amber-200 transition font-medium cursor-pointer shadow-2xs"
+                >
+                  <div className="font-bold flex items-center gap-1">🏪 Commerçant</div>
+                  <div className="text-[10px] text-amber-700">Boutique Nexus Paris</div>
+                </button>
+              </div>
+              <div className="mt-2 text-center text-[10px] text-slate-400">
+                Mots de passe démo : <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">DemoCare2026!</code> ou <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">demo</code> / <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">AdminCare2026!</code> ou <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">admin</code>
+              </div>
             </div>
-            <div className="mt-2 text-center text-[10px] text-slate-400">
-              Mots de passe démo : <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">DemoCare2026!</code> ou <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">demo</code> / <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">AdminCare2026!</code> ou <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">admin</code>
-            </div>
-          </div>
+          )}
         </form>
 
       </div>
