@@ -41,7 +41,7 @@ interface PartnerDashboardViewProps {
 export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
   onPreviewStorefront,
 }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   // Shops managed
   const [allShops, setAllShops] = useState<PartnerShop[]>([]);
@@ -125,7 +125,8 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
 
   async function loadShopData(shopId: string, period: string) {
     try {
-      const headers = user ? { Authorization: `Bearer ${user.id}` } : {};
+      const authCredential = token || user?.id;
+      const headers = authCredential ? { Authorization: `Bearer ${authCredential}` } : {};
 
       const [resAnalytics, resInv, resCats, resTeam] = await Promise.all([
         fetch(`/api/marketplace/partner/store/analytics?shopId=${shopId}&period=${period}`, { headers }),
@@ -562,10 +563,10 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
                 <DollarSign className="w-4 h-4 text-emerald-600" />
               </div>
               <div className="text-2xl font-black text-slate-900">
-                {analytics.grossRevenue.toFixed(2)} €
+                {Number(analytics.grossRevenue ?? 0).toFixed(2)} €
               </div>
               <p className="text-[11px] text-slate-400">
-                Net commerçant : <strong>{analytics.netPayout.toFixed(2)} €</strong>
+                Net commerçant : <strong>{Number(analytics.netRevenue ?? 0).toFixed(2)} €</strong>
               </p>
             </div>
 
@@ -575,9 +576,9 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
                 <span>Commandes</span>
                 <ShoppingBag className="w-4 h-4 text-teal-600" />
               </div>
-              <div className="text-2xl font-black text-slate-900">{analytics.ordersCount}</div>
+              <div className="text-2xl font-black text-slate-900">{analytics.ordersCount ?? 0}</div>
               <p className="text-[11px] text-slate-400">
-                Panier moyen : <strong>{analytics.averageOrderValue.toFixed(2)} €</strong>
+                Panier moyen : <strong>{Number(analytics.averageBasket ?? 0).toFixed(2)} €</strong>
               </p>
             </div>
 
@@ -587,9 +588,9 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
                 <span>Visiteurs Uniques</span>
                 <Users className="w-4 h-4 text-blue-600" />
               </div>
-              <div className="text-2xl font-black text-slate-900">{analytics.uniqueVisitors}</div>
+              <div className="text-2xl font-black text-slate-900">{analytics.uniqueVisitors ?? 0}</div>
               <p className="text-[11px] text-slate-400">
-                Taux de conversion : <strong>{analytics.conversionRate}%</strong>
+                Taux de conversion : <strong>{Number(analytics.conversionRate ?? 0).toFixed(1)}%</strong>
               </p>
             </div>
 
@@ -600,10 +601,10 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
               </div>
               <div className="text-2xl font-black text-slate-900">
-                {analytics.lowStockAlertsCount + analytics.outOfStockCount}
+                {(analytics.lowStockCount ?? 0) + (analytics.outOfStockCount ?? 0)}
               </div>
               <p className="text-[11px] text-amber-700 font-medium">
-                {analytics.lowStockAlertsCount} stock faible • {analytics.outOfStockCount} rupture
+                {analytics.lowStockCount ?? 0} stock faible • {analytics.outOfStockCount ?? 0} rupture
               </p>
             </div>
           </div>
@@ -615,11 +616,11 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
               <span>Produits les plus vendus de la boutique</span>
             </h3>
 
-            {analytics.topSellingProducts.length === 0 ? (
+            {(analytics.topSoldProducts || []).length === 0 ? (
               <p className="text-xs text-slate-400">Aucune vente enregistrée sur cette période.</p>
             ) : (
               <div className="divide-y divide-slate-100 text-xs">
-                {analytics.topSellingProducts.map((p, idx) => (
+                {(analytics.topSoldProducts || []).map((p, idx) => (
                   <div key={p.productId} className="py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-black flex items-center justify-center text-xs">
@@ -627,11 +628,11 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
                       </span>
                       <div>
                         <strong className="text-slate-900 font-bold block">{p.name}</strong>
-                        <span className="text-[11px] text-slate-500">{p.unitsSold} unités vendues</span>
+                        <span className="text-[11px] text-slate-500">{p.quantity ?? 0} unités vendues</span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <strong className="text-slate-900 font-black">{p.revenue.toFixed(2)} €</strong>
+                      <strong className="text-slate-900 font-black">{Number(p.revenue ?? 0).toFixed(2)} €</strong>
                       <div className="text-[10px] text-slate-400">CA généré</div>
                     </div>
                   </div>
@@ -1101,7 +1102,7 @@ export const PartnerDashboardView: React.FC<PartnerDashboardViewProps> = ({
                           <strong className="text-slate-900 font-bold block">{p.name}</strong>
                           <span className="text-[10px] font-mono text-slate-400">{p.sku || p.id}</span>
                         </td>
-                        <td className="py-3 px-3 font-semibold">{p.price.toFixed(2)} €</td>
+                        <td className="py-3 px-3 font-semibold">{Number(p.price ?? 0).toFixed(2)} €</td>
                         <td className="py-3 px-3">
                           <span
                             className={`font-black text-xs ${
