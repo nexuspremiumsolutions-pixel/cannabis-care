@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "CANNABIS CARE — Nexus Premium Solutions",
+  "short_name": "CANNABIS CARE",
+  "description": "Application d'accompagnement bien-être, réduction des risques et suivi comportemental pour adultes consommateurs ou anciens consommateurs de cannabis.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#0d9488",
+  "background_color": "#f8fafc",
+  "orientation": "portrait-primary",
+  "categories": ["health", "lifestyle", "medical"],
+  "icons": [
+    {
+      "src": "/assets/aistudio/logo_officiel_cannabis_care_sombre_5d1e8e7a.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/aistudio/logo_officiel_cannabis_care_sombre_5d1e8e7a.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}

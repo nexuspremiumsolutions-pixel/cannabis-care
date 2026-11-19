@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="careGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#042f2e" flood-opacity="0.15" />
+    </filter>
+  </defs>
+  <!-- Background Circle (Safe zone) -->
+  <rect width="512" height="512" rx="128" fill="#f8fafc" />
+  <circle cx="256" cy="256" r="210" fill="url(#careGrad)" filter="url(#softShadow)" />
+  
+  <!-- Health & Wellness Shield Cross / Leaf Minimalist Symbiosis -->
+  <g fill="#ffffff" transform="translate(106, 106) scale(0.58)">
+    <!-- Heart & Shield Emblem -->
+    <path d="M256 470 C 150 400 60 290 60 180 A 100 100 0 0 1 256 120 A 100 100 0 0 1 452 180 C 452 290 362 400 256 470 Z" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Botanical Care Droplet / Branch Symbolism -->
+    <path d="M256 160 C 256 160 210 240 210 290 C 210 320 230 345 256 345 C 282 345 302 320 302 290 C 302 240 256 160 256 160 Z" fill="#ffffff" />
+    <circle cx="256" cy="285" r="14" fill="#0f766e" />
+  </g>
+  <!-- Brand text subtly in icon for launcher if needed -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#14b8a6" stroke-width="4" stroke-opacity="0.4" />
+</svg>

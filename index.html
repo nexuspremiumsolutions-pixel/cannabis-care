@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>CANNABIS CARE — Nexus Premium Solutions</title>
+    <meta name="description" content="Application d'accompagnement bien-être, réduction des risques et suivi comportemental pour adultes consommateurs ou anciens consommateurs de cannabis." />
+    <meta property="og:title" content="CANNABIS CARE — Nexus Premium Solutions" />
+    <meta property="og:description" content="Application d'accompagnement bien-être, réduction des risques et suivi comportemental pour adultes consommateurs ou anciens consommateurs de cannabis." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0d9488" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CANNABIS CARE" />
+    <link rel="icon" type="image/jpeg" href="/assets/aistudio/logo_officiel_cannabis_care_sombre_5d1e8e7a.jpg" />
+    <link rel="apple-touch-icon" href="/assets/aistudio/logo_officiel_cannabis_care_sombre_5d1e8e7a.jpg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet" />
+    <script>
+      // Filter benign Vite WebSocket disconnection messages in iframe/container preview
+      (function() {
+        var originalError = console.error;
+        var originalWarn = console.warn;
+        function isViteHmr(args) {
+          for (var i = 0; i < args.length; i++) {
+            var item = args[i];
+            var str = '';
+            try {
+              if (typeof item === 'string') {
+                str = item;
+              } else if (item && typeof item === 'object') {
+                str = item.message || item.reason || (item.constructor ? item.constructor.name : '') || String(item);
+              } else {
+                str = String(item);
+              }
+            } catch (e) {
+              str = '';
+            }
+            if (
+              str &&
+              (str.indexOf('[vite]') !== -1 ||
+               str.toLowerCase().indexOf('websocket') !== -1 ||
+               str.toLowerCase().indexOf('failed to connect') !== -1)
+            ) {
+              return true;
+            }
+          }
+          return false;
+        }
+
+        console.error = function() {
+          if (isViteHmr(arguments)) {
+            return;
+          }
+          originalError.apply(console, arguments);
+        };
+
+        console.warn = function() {
+          if (isViteHmr(arguments)) {
+            return;
+          }
+          originalWarn.apply(console, arguments);
+        };
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event && (event.reason ? (event.reason.message || String(event.reason)) : '');
+          if (reason && (reason.indexOf('[vite]') !== -1 || reason.toLowerCase().indexOf('websocket') !== -1)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+
+        window.addEventListener('error', function(event) {
+          var msg = event && (event.message || '');
+          if (msg && (msg.indexOf('[vite]') !== -1 || msg.toLowerCase().indexOf('websocket') !== -1)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-teal-500/20 selection:text-teal-900 min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+

@@ -1,0 +1,7 @@
+{
+  "name": "Cannabis Care",
+  "description": "Application d'accompagnement bien-être, réduction des risques et suivi comportemental pour adultes consommateurs ou anciens consommateurs de cannabis par Nexus Premium Solutions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
